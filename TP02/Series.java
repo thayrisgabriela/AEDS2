@@ -192,7 +192,6 @@ public class Series {
 
 
 
-
     public static void main(String args[]) throws Exception {
         Scanner s = new Scanner(System.in);
         String[] seriesList = new String[200];
