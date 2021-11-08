@@ -3,17 +3,13 @@ import java.io.FileReader;
 import java.io.File;  
 import java.io.IOException;
 import java.util.Scanner;
-
 class CCelula {
 	public Object item;
-	public Object menorValor;
-	public CCelula prox;    	
-
-    public CCelula(Object valorItem, CCelula proxCelula, Object menor)
+	public CCelula prox;    
+    public CCelula(Object valorItem, CCelula proxCelula)
     {
         item = valorItem;
         prox = proxCelula;
-		menorValor = menor;
     }    			
     public CCelula(Object valorItem)
     {
@@ -29,43 +25,26 @@ class CCelula {
 
 class CPilha {
 	private CCelula topo = null;
-	private int menor = 900000;
-	private int valorInt = 0;
-
+    public void mostra() {
+		for (CCelula c = topo; c != null; c = c.prox)
+			System.out.println("[ " + c.item + " ]");
+	}
 
 	public void empilha(Object valorItem) {
-		valorInt = (int) valorItem;
-		if (valorInt < menor)
-			menor = valorInt;
-		
-		topo = new CCelula(valorItem, topo, menor);
+		topo = new CCelula(valorItem, topo);
 	}
 	
 
 	public Object desempilha() {
 		Object item = null;
 		if (topo != null) {
-			if (topo.prox != null)
-				menor = (int) topo.prox.menorValor;
-			else 
-				menor = (int) topo.menorValor;
 			item = topo.item;
 			topo = topo.prox;
 		}
 		return item;
 	}
-
-
-	public Object peek() {
-		return (topo != null) ? topo.item : null;
-	}
-
-	public Object getMenor(){
-		return menor;
-	}
-
-	public boolean verificaVazia() {
-		return topo == null;
+    public void Imprimetopo(Object valorItem) {
+		System.out.println(topo);
 	}
 
 }
@@ -126,11 +105,7 @@ public class Q01 {
             }
 			else	
 				break;
-
 		}
-
-		
-
 		leitor.close();
 	}
 

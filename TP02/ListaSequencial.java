@@ -127,13 +127,15 @@ class Serie{
         resp.ep = this.ep;
         return resp;
     }
+
     //método para printar a classe
     public void printClass(){
         System.out.println(this.nome + " " + this.formato + " " + this.duracao + " " + this.pais + " " + this.idioma + " " + this.emissora + " " +
         this.transmissao + " " + this.temp + " " + this.ep);
     }
-    //método para tratar a linha, deixar apenas números e converter o retorno de String para Integer
-    public int justInt(String line){
+
+    //método para tratar a linha, deixar apenas números e converter o retorno de String para Inteiro
+    public int converteStr(String line){
         String resp = "";
         for(int i = 0; i < line.length(); i++){
             if(line.charAt(i) >= '0' && line.charAt(i) <= '9'){ //caso o caracter seja um número ele é concatenado a variável resp
@@ -216,11 +218,11 @@ class Serie{
 
             //set temporadas da série
             while(!br.readLine().contains("N.º de temporadas"));
-            this.temp = justInt(removeTags(br.readLine()));
+            this.temp = converteStr(removeTags(br.readLine()));
 
             //set episódios da série
             while(!br.readLine().contains("N.º de episódios"));
-            this.ep = justInt(removeTags(br.readLine()));
+            this.ep = converteStr(removeTags(br.readLine()));
             
             
             br.close();         

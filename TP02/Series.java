@@ -24,6 +24,7 @@ public class Series {
     Series() {
         nome = "";
     }
+
     public Series clone(){
         Series resp = new Series();
         resp.nome = this.nome;
@@ -38,7 +39,7 @@ public class Series {
 
         return resp;
     }
-        public Series(String data[]) {
+        public Series(String data[]) { //define a posição de cada atributo 
         this.nome = data[0];
         this.formato = data[1];
         this.duracao = data[2];
