@@ -244,232 +244,159 @@ class Serie{
 }
 
 class No {
-	public Serie elemento; // Conteudo do no.
-	public No esq; // No da esquerda.
-	public No dir; // No da direita.
-    public No2 outro;
 
-	No(Serie elemento) {
-		this.elemento = elemento;
-		this.esq = this.dir = null;
-      this.outro = null;
-	}
+    public No2 no2; // Conteudo do no.
+    public No esq, dir; // Filhos da esq e dir.
+    public char elemento; // Inicial do conteudo do no.
 
-	No(Serie elemento, No esq, No dir) {
-		this.elemento = elemento;
-		this.esq = esq;
-		this.dir = dir;
-      this.outro = null;
-	}
+    public No(char elemento) {
+
+        this.elemento = elemento;
+        this.esq = null;
+        this.dir = null;
+        this.no2 = null;
+    }
+
+    public No(char elemento, No2 no2, No esq, No dir) {
+        this.elemento = elemento;
+        this.no2 = no2;
+        this.esq = esq;
+        this.dir = dir;
+    }
 }
 
 class No2 {
-	public Serie elemento; // Conteudo do no.
-	public No2 esq; // No da esquerda.
-	public No2 dir; // No da direita.
 
-	No2(Serie elemento) {
-		this.elemento = elemento;
-		this.esq = this.dir = null;
-	}
+    public Serie elemento; // Conteudo do no.
+    public No2 esq, dir; // Filhos da esq e dir.
 
-	No2(Serie elemento, No2 esq, No2 dir) {
-		this.elemento = elemento;
-		this.esq = esq;
-		this.dir = dir;
-	}
+    public No2(Serie elemento) {
+        this(elemento, null, null);
+    }
+
+    public No2(Serie elemento, No2 esq, No2 dir) {
+        this.elemento = elemento;
+        this.esq = esq;
+        this.dir = dir;
+    }
 }
 
-class Arvore {
-	private No raiz; // Raiz da arvore.
+class ArvoreArv {
+    private static No raiz; // Raiz da arvore.
 
-	public Arvore() {
-		raiz = null;
-      inserir('M');
-      inserir('T');
-      inserir('F');
-      //os outros 23 caracteres.
-	}
+    public ArvoreArv() throws Exception {
+        char array[] = { 'D', 'R', 'Z', 'X', 'V', 'B', 'F', 'P', 'U', 'I', 'G', 'E', 'J', 'L', 'H', 'T', 'A', 'W', 'S',
+                'O', 'M', 'N', 'K', 'C', 'Y', 'Q' };
+        for (char item : array) {
+            ArvoreArv.inserirPrimario(item);
+        }
+    }
+    public boolean pesquisar(String x) {
+        MyIO.print("raiz ");
+        return pesquisar(x, raiz);
+    }
 
-   public void inserir(Serie letra){
-    raiz = inserir(x, raiz);  
+    private boolean pesquisar(String x, No i) {
+
+        boolean resp = true;
+        if (i == null) {
+            resp = false;
+        } else {
+            resp = pesquisar2(x, i.no2);
+            if (resp == false) {
+                System.out.print("esq ");
+                resp = pesquisar(x, i.esq);
+                if (resp == false) {
+                    System.out.print("dir ");
+                    resp = pesquisar(x, i.dir);
+                }
+            }
+        }
+        return resp;
+    }
+
+    private boolean pesquisar2(String x, No2 i) {
+        boolean resp;
+        if (i == null) {
+            resp = false;
+        } else if (x.compareTo(i.elemento.getNome()) == 0) {
+            resp = true;
+        } else {
+            MyIO.print("ESQ ");
+            resp = pesquisar2(x, i.esq);
+            if (resp == false) {
+                MyIO.print("DIR ");
+                resp = pesquisar2(x, i.dir);
+            }
+        }
+        return resp;
+    }
+
+
+    public void caminharCentral() {
+        System.out.print("[ ");
+        caminharCentral(raiz);
+        System.out.println("]");
+    }
+
+
+    private void caminharCentral(No i) {
+        if (i != null) {
+            caminharCentral(i.esq); // no2s da esquerda.
+            System.out.print(i.elemento + " "); // Conteudo do no.
+            caminharCentral(i.dir); // no2s da direita.
+        }
+    }
+
+
+    public static void inserirPrimario(char x) throws Exception {
+        raiz = inserirPrimario(x, raiz);
+    }
+
+    private static No inserirPrimario(char x, No i) {
+        if (i == null)
+            i = new No(x);
+        if (x < i.elemento) {
+            i.esq = inserirPrimario(x, i.esq);
+        } else if (x > i.elemento) {
+            i.dir = inserirPrimario(x, i.dir);
+        }
+        return i;
+    }
+
+
+    public void inserir(Serie x) throws Exception {
+        raiz = inserir(x, raiz);
+    }
+
+
+    private No inserir(Serie x, No i) throws Exception {
+        if (i == null)
+            i = new No(x.getNome().toUpperCase().charAt(0));
+        if (x.getNome().toUpperCase().charAt(0) < i.elemento) {
+            i.esq = inserir(x, i.esq);
+        } else if (x.getNome().toUpperCase().charAt(0) > i.elemento) {
+            i.dir = inserir(x, i.dir);
+        } else {
+            i.no2 = inserir2(x, i.no2);
+        }
+        return i;
+    }
+
+    private No2 inserir2(Serie x, No2 i) throws Exception {
+        if (i == null)
+            i = new No2(x);
+        if (x.getNome().compareTo(i.elemento.getNome()) < 0) {
+            i.esq = inserir2(x, i.esq);
+        } else if (x.getNome().compareTo(i.elemento.getNome()) > 0) {
+            i.dir = inserir2(x, i.dir);
+        }
+        return i;
+    }
 }
 
 
-   public void inserir(String s){
-      inserir(s, raiz);
-   }
-
-   public void inserir(String s, No i) throws Exception {
-		if (i == null) {
-         throw new Exception("Erro ao inserir: caractere invalido!");
-
-      } else if (s.getNome().charAt(0) < i.elemento) {
-         inserir(x, i.esq);
-
-      } else if (s.getNome().charAt(0) > i.elemento) {
-         inserir(x, i.dir);
-
-      } else {
-         i.outro = inserir(s, i.outro);
-      }
-   }
-
-
-	private No2 inserir(Serie s, No2 i) throws Exception {
-		if (i == null) {
-         i = new No2(x);
-
-      } else if (s.getNome().compareTo(i.elemento.getNome()) < 0compareTo(i.elemento) < 0) {
-         i.esq = inserir(x, i.esq);
-
-      } else if (s.getNome().compareTo(i.elemento.getNome()) > 0) {
-         i.dir = inserir(x, i.dir);
-
-      } else {
-         throw new Exception("Erro ao inserir: elemento existente!");
-      }
-
-		return i;
-	}
-
-
-   public void mostrar(){
-      mostrar(raiz);
-   }
-
-   public void mostrar(No i){
-      if (i != null){
-         mostrar(i.esq);
-         //System.out.println("Letra: " + i.elemento);
-         mostrar(i.outra);
-         mostrar(i.dir);
-      }
-   }
-
-   public void mostrar(No2 i){
-      if (i != null){
-         mostrar(i.esq);
-         System.out.println(i.elemento);
-         mostrar(i.dir);
-      }
-   }
-
-   public boolean hasStringTam10(){
-      return hasStringTam10(raiz);
-   }
-
-   public boolean hasStringTam10(No i){
-      boolean resp = false;
-      if(i != null){
-         resp = hasStringTam10(i.outro) || hasStringTam10(i.esq) || hasStringTam10(i.dir);
-      }
-      return resp;
-   }
-
-   public boolean hasStringTam10(No2 i){
-      boolean resp = false;
-      if(i != null){
-         resp = i.elemento.length() == 10 || hasStringTam10(i.esq) || hasStringTam10(i.dir);
-      }
-      return resp;
-   }
-
-
-   public boolean hasStringTam10(char c){
-      return hasStringTam10(raiz, c);
-   }
-
-   public boolean hasStringTam10(No i, char c){
-      boolean resp;
-		if (i == null) { 
-         resp = false;
-
-      } else if (c < i.elemento) { 
-         resp = hasStringTam10(i.esq, c); 
-
-      } else if (c > i.elemento) { 
-         resp = hasStringTam10(i.dir, c); 
-      
-      } else { 
-         resp = hasStringTam10(i.outro); 
-      }
-      return resp;
-   } 
-
-
-	public boolean pesquisar(String elemento) {
-		return pesquisar(raiz, elemento);
-	}
-
-	private boolean pesquisar(No no, String x) {
-      boolean resp;
-		if (no == null) { 
-         resp = false;
-
-      } else if (x.charAt(0) < no.elemento) { 
-         resp = pesquisar(no.esq, x); 
-
-      } else if (x.charAt(0) > no.elemento) { 
-         resp = pesquisar(no.dir, x); 
-      
-      } else { 
-         resp = pesquisarSegundaArvore(no.outro, x); 
-      }
-      return resp;
-	}
-
-	private boolean pesquisarSegundaArvore(No2 no, String x) {
-      boolean resp;
-		if (no == null) { 
-         resp = false;
-
-      } else if (x.compareTo(no.elemento) < 0) { 
-         resp = pesquisarSegundaArvore(no.esq, x); 
-
-      } else if (x.compareTo(no.elemento) > 0) { 
-         resp = pesquisarSegundaArvore(no.dir, x); 
-
-      } else { 
-         resp = true; 
-      }
-      return resp;
-	}
-
-
-   public int contPalavra(char letra){
-      return contPalavra(letra, raiz);
-   }
-
-   public int contPalavra(char letra, No i) throws Exception {
-      int resp = 0;
-
-		if (i == null) {
-         throw new Exception("Erro ao pesquisar: caractere invalido!");
-
-      } else if (letra < i.elemento) {
-         resp = contPalavra(letra, i.esq);
-
-      } else if (letra > i.elemento) {
-         resp = contPalavra(letra, i.dir);
-
-      } else {
-         resp = contPalavra(i.outro);
-      }
-
-      return resp;
-   }
-
-   public int contPalavra(No2 i){
-      int resp = 0;
-      if(i != null){
-         resp = 1 + contPalavra(i.esq) + contPalavra(i.dir);
-      }
-      return resp;
-   }
-}
-
- public class ArvoreArvore{
+public class ArvoreArvore{
 
     public static boolean isFim(String s){
         boolean result;
@@ -481,7 +408,7 @@ class Arvore {
     public static void matricula(long duracao, int contador){ // GERADOR DE ARQUIVO DE LOG
 
         try {
-            File myObj = new File("matrícula_arvoreBinaria.txt");
+            File myObj = new File("matrícula_arvoreArvore.txt");
             if (myObj.createNewFile()) {
             } else {
             }
@@ -490,7 +417,7 @@ class Arvore {
           }
 
           try {
-            FileWriter myWriter = new FileWriter("matrícula_arvoreBinaria.txt");
+            FileWriter myWriter = new FileWriter("matrícula_arvoreArvore.txt");
             myWriter.write("737163" + "\t" + duracao + "\t" + contador);
             myWriter.close();
           } catch (IOException e) {
@@ -499,14 +426,14 @@ class Arvore {
 
     }
 
-    public static void main(String [] args) throws IOException{
+    public static void main(String [] args) throws Exception{
         Serie serie = new Serie();
 		//Inicialização do timer de execução
 		long tempoEntrada = System.nanoTime();
         String entrada = "";
         String entrada2 = "";
         int contador = 0;
-        ArvoreBin arvore = new ArvoreBin();
+        ArvoreArv arvore = new ArvoreArv();
 
 
         while (isFim(entrada) == false) {
@@ -534,16 +461,7 @@ class Arvore {
                 try {
                     arvore.inserir(serie);
                 } catch (Exception e) {
-                
                 }
-
-            }
-            else if(entrada.charAt(0)=='R'){
-                //insere no fim a serie desejada
-                serie = new Serie();
-                try {
-                   serie = arvore.remover();
-                } catch (Exception e) {}   
             }
         }
 

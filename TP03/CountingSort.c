@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
+#include <time.h> 
 #define MAX_FIELD_SIZE 100
 
 typedef struct {
@@ -53,7 +53,7 @@ long tam_arquivo(FILE *file) {
     return size;
 }
 
-// Retorna todo o conteúdo do arquivo em uma string.
+// Retorna todo o conteúdo do arquivo numa string.
 char *ler_html(char filename[]) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -67,6 +67,7 @@ char *ler_html(char filename[]) {
     html[tam] = '\0';
     return html;
 }
+
 
 char *extrair_texto(char *html, char *texto) {
     char *start = texto;
@@ -93,24 +94,6 @@ char *extrair_texto(char *html, char *texto) {
     return *start == ' ' ? start + 1 : start;
 }
 
-char *ltrim(char *s)
-{
-    while(isspace(*s)) s++;
-    return s;
-}
-
-char *rtrim(char *s)
-{
-    char* back = s + strlen(s);
-    while(isspace(*--back));
-    *(back+1) = '\0';
-    return s;
-}
-
-char *trim(char *s)
-{
-    return rtrim(ltrim(s)); 
-}
 
 void ler_serie(Serie *serie, char *html) {
     char texto[MAX_FIELD_SIZE];
@@ -139,12 +122,10 @@ void ler_serie(Serie *serie, char *html) {
 
     ptr = strstr(ptr, "Idioma original");
     ptr = strstr(ptr, "<td");
-    strcpy(serie->pais, trim(texto));
     strcpy(serie->idioma, extrair_texto(ptr, texto));
 
     ptr = strstr(ptr, "Emissora de televisão original");
     ptr = strstr(ptr, "<td");
-    strcpy(serie->emissora, trim(texto));
     strcpy(serie->emissora, extrair_texto(ptr, texto));
 
     ptr = strstr(ptr, "Transmissão original");
@@ -159,26 +140,26 @@ void ler_serie(Serie *serie, char *html) {
     ptr = strstr(ptr, "<td");
     sscanf(extrair_texto(ptr, texto), "%d", &serie->num_episodios);
 }
-
-#define MAXTAM    10000
+#define MAXTAM    1000
 #define bool      short
 #define true      1
 #define false     0
 
 Serie listaSerie[MAXTAM];   // Elementos da pilha 
-int n;               // Quantidade de listaSerie.
-int comparacoes;
-int movimentacoes;
+int n;               // Quantidade de array.
 Serie t;
+int comparacoes;
+int movimentacoes;   
 
 
 void start(){
     n = 0;
 }
 void mostrar (){
-    int j;
-    for(j = 0; j < n; j++){
-        print_serie(&listaSerie[j]);
+    int i;
+    for(i = 0; i < n; i++){
+        comparacoes++;
+        print_serie(&listaSerie[i]);
     }
 }
 void inserirFim(Serie x) {
@@ -192,42 +173,68 @@ if(n >= MAXTAM){
 listaSerie[n] = x;
 n++;
 }
-void insercaoPorCor(Serie* array, int n){
-    int cor=0; int h = 1;
-    for (int i = (h + cor); i < n; i+=h) {
-        movimentacoes++;
-        comparacoes++;
-        Serie tmp = array[i];
-        int j = i - h;
-        int teste = strcmp(array[j].idioma, tmp.idioma);
-        int teste2 = strcmp(array[j].nome, tmp.nome);
-        while ((j >= 0) && 
-            ((teste > 0)|| 
-            ((teste == 0) && 
-            (teste2 > 0)))){
-            comparacoes = 2*comparacoes;
-            movimentacoes++;
-            array[j + h] = array[j];
-            j-=h;
-        }
-        array[j + h] = tmp;
-    }
+void swap(int pos1, int pos2){
+    Serie aux;
+    aux = listaSerie[pos1];
+    listaSerie[pos1] = listaSerie[pos2];
+    listaSerie[pos2] = aux;
 }
+int getMaior(Serie *array, int n) {
+    int maior = array[0].num_temporadas;
 
-void shellSort() {
-    int h = 1;
-
-    do { h = (h * 3) + 1; 
-    comparacoes++;
-    } while (h < n);
-
-    do {
-        h /= 3;
-        for(int cor = 0; cor < h; cor++){
+    for (int i = 0; i < n; i++) {
+        comparacoes++;
+        if(maior < array[i].num_temporadas){
             comparacoes++;
-            insercaoPorCor(listaSerie, n);
+            movimentacoes++;
+            maior = array[i].num_temporadas;
         }
-    } while (h != 1);
+    }
+    return maior;
+}
+void Desempatar() {
+        for (int i = 0; i < (n - 1); i++) {
+        comparacoes++;
+        int menor = i;
+        int teste;
+        for (int j = (i + 1); j < n; j++){
+            comparacoes++;
+            if (listaSerie[j].num_temporadas< listaSerie[menor].num_temporadas) {
+                comparacoes++;
+            menor = j;
+        }
+        int teste2;
+        teste2 = strcmp(listaSerie[j].nome, listaSerie[menor].nome);
+        if(listaSerie[j].num_temporadas == listaSerie[menor].num_temporadas){
+            movimentacoes++;
+            if(teste2<0){
+                comparacoes++;
+            menor = j;
+            }
+        }
+    }
+    swap(menor, i);
+}
+}
+void countingSort(Serie *array, int n) {
+    Desempatar();
+    //Array para contar o numero de ocorrencias de cada elemento
+    int tamCount = getMaior(array, n) + 1;
+    int count[tamCount];
+    int ordenado[n];
+    //Inicializar cada posicao do array de contagem 
+    for (int i = 0; i < tamCount; count[i] = 0, i++);
+
+    //Agora, o count[i] contem o numero de elemento iguais a i
+    for (int i = 0; i < n; count[array[i].num_temporadas]++, i++);
+
+    //Agora, o count[i] contem o numero de elemento menores ou iguais a i
+    for(int i = 1; i < tamCount; count[i] += count[i-1], i++);
+
+    //Ordenando
+    for(int i = n-1; i >= 0; ordenado[count[array[i].num_temporadas]-1] = array[i].num_temporadas, count[array[i].num_temporadas]--, i--);
+    //Copiando para o array original
+    for(int i = 0; i < n; array[i].num_temporadas = ordenado[i], i++);
 }
 
 
@@ -254,7 +261,8 @@ int main() {
         readline(line + tam_prefixo, MAX_LINE_SIZE);
         inserirFim(serie);
     }
-    shellSort(0);
+
+    countingSort(listaSerie, n);
     mostrar();
     return EXIT_SUCCESS;
 }
